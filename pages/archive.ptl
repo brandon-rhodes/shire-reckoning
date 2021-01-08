@@ -1,0 +1,387 @@
+from datetime import datetime
+from shire_calendar import calendar
+import sr, sr_entries, sr_html, sr_moon
+
+# Rather than putting the Yule and Lithe days on their own pages, we
+# display them on the page for an adjacent month.  This list of
+# "alternatives" gives, for each special day, the month in whose
+# archive we display it, and the way we display its number.
+
+alternates = {
+    'Lithe 1': ('June', 'L1'),
+    'Midyear': ('June', 'M'),
+    'Lithe 2': ('July', 'L2'),
+    'Yule 1': ('December', 'Y1'),
+    'Yule 2': ('January', 'Y2'),
+    }
+
+# How to draw one of the little numbered and colored boxes out of
+# which we build our small calendars.
+
+def draw_date [plain] (date):
+    month_name = date.month
+    month_class = month_name[:3].lower()
+    entries = sr_entries.get(date)
+
+    # Figure out how to display the number of the day.  Usually this
+    # is simply its bare digits, but for Lithe and Yuledays it often
+    # has another form.
+
+    if date.name in alternates:
+        month_name, num = alternates[date.name]
+    else:
+        num = str(date.day)
+
+    url = 'archive-%d-%s#d%s' % (date.year, month_name, num)
+    '<td class="d '
+    month_class
+    if not entries:
+        ' u'
+    '">'
+    if entries:
+        '<a href="%s">' % url
+        num
+        '</a>'
+    else:
+        num
+
+# How to draw an entire little month, with links from the day boxes
+# which have events to the section of the archive describing those
+# events.
+
+recently_displayed_year = None
+
+def draw_month [plain] (month_name, annotations=(), year=None, nolink=False):
+    global recently_displayed_year
+
+    alist = list(annotations)
+
+    # Display the year, if necessary.
+
+    '<tr><th colspan=7 class=blank>'
+    if year is None:
+        year = recently_displayed_year
+    else:
+        recently_displayed_year = year
+        str(year)
+        '<br>'
+
+    # Now that we know the year, figure out a few dates.
+
+    first_date = calendar[year, month_name, 1]
+    last_date = calendar[year, month_name, 30]
+    weekday = first_date.day_of_week()
+
+    # Display the month name, possibly hyperlinked.
+
+    if nolink or not sr_entries.get(first_date, last_date):
+        month_name
+    else:
+        '<a href="archive-%s-%s">' % (year, month_name)
+        month_name
+        '</a>'
+    '</th>'
+
+    # Display days or blank space that precedes the 1st of the month.
+
+    if weekday:
+        '<tr>'
+        if month_name == 'January':
+            draw_date(calendar[year, 'Yule 2'])
+        elif month_name == 'July':
+            draw_date(calendar[year, 'Lithe 2'])
+        else:
+            '<td colspan=%d>' % weekday
+
+    # Display the days of the month themselves.
+
+    for i in range(30):
+        if (weekday + i) % 7 == 0:
+            '<tr>'
+        day_name = '%s %d' % (month_name, i+1)
+        date = calendar[year, day_name]
+        draw_date(date)
+        if (weekday + i) % 7 == 6:
+            '<td class=a>'
+            if alist:
+                alist.pop(0).replace(' ', '&nbsp;')
+            else:
+                '&nbsp;'
+
+    # Display days or blank space that follows the 30th of the month.
+
+    leftover = (weekday + 30) % 7
+    if leftover:
+        if month_name == 'June':
+            draw_date(calendar[year, 'Lithe 1'])
+        elif month_name == 'December':
+            draw_date(calendar[year, 'Yule 1'])
+        else:
+            '<td colspan=%d>' % (7 - leftover)
+        '<td class=a>'
+        if alist:
+            alist.pop(0).replace(' ', '&nbsp;')
+        else:
+            '&nbsp;'
+
+    # If we are displaying June, follow with Midyear's Day.
+
+    if month_name == 'June':
+        '<tr><th colspan=7>Midyear\'s Day'
+        '<tr><td colspan=3>'
+        draw_date(calendar[year, 'Midyear'])
+        '<td colspan=3>'
+        '<td class=a>'
+        if alist:
+            alist.pop(0).replace(' ', '&nbsp;')
+        else:
+            '&nbsp;'
+
+# Given a month name, determine the first and last date (inclusive)
+# that should be displayed for that month.  This allows us to include
+# Lithe and Yule days on the archive pages for adjacent months, rather
+# than having to give them their own tiny little pages of their own.
+
+archive_month_starts = { 'January': 'Yule 2', 'July': 'Lithe 2' }
+archive_month_ends = { 'June': 'Midyear', 'December': 'Yule 1' }
+
+def archive_month_range(year, month_name):
+    start = archive_month_starts.get(month_name) or month_name + ' 1'
+    end = archive_month_ends.get(month_name) or month_name + ' 30'
+    return calendar[year, start], calendar[year, end]
+
+# Generate a web page displaying every event in a given month.
+
+def archive_month_navigation [plain] (start_date, end_date):
+
+    def build_url(date):
+        if date.name in alternates:
+            month_name = alternates[date.name][0]
+        else:
+            month_name = date.month
+        return '/archive-%d-%s' % (date.year, month_name)
+
+    '<p align=center>'
+    date = sr_entries.date_before(start_date)
+    if date:
+        '&larr; <a href="%s">Previous month</a>&emsp;' % build_url(date)
+    '&emsp;&uarr;<a href="/archive.html">Archive index</a>&uarr;&emsp;'
+    date = sr_entries.date_after(end_date)
+    if date:
+        '&emsp;<a href="%s">Next month</a> &rarr;' % build_url(date)
+    '</p>'
+
+def month_page [plain] (year, month_name):
+
+    start_date, end_date = archive_month_range(year, month_name)
+    archive_month_navigation(start_date, end_date)
+
+    '<table class=calendar align=center'
+    ' summary="calendar for %s %s">' % (year, month_name)
+    draw_month(month_name, year=year, nolink=True)
+    '</table>'
+
+    '<table width="60%" align=center summary="entries in this month"><tr><td>'
+    last_date = None
+    for entry in sr_entries.get(start_date, end_date):
+        if last_date != entry.date:
+            if entry.date.name in alternates:
+                tag = alternates[entry.date.name][1]
+            else:
+                tag = str(entry.date.day)
+            '<p>'
+            sr_moon.img(sr_moon.phase(entry.date, 0.5))
+            '&nbsp;<a id="d%s"><b>%s.</b></a> ' % (tag, entry.date.name)
+            last_date = entry.date
+        entry.render()
+    '</table>'
+
+    archive_month_navigation(start_date, end_date)
+
+def main_page [plain] ():
+    '''<p class=eighty>This archive provides year-round access
+to the entries which come up on our home page over the year.
+The Shire calendar below covers the year and a half
+over which the principle action of <i>The Lord of the Rings</i> takes place,
+starting with Gandalf\'s dramatic return to the Shire
+in the April of Frodo\'s forty-ninth year,
+and ending with the Battle of Bywater almost nineteen months later.
+Click either on a hyperlinked date or month name
+to visit that particular entry in the archive.
+'''
+    '<table class="calendar" align=center summary="calendar of events">'
+    draw_month('April', [
+        '',
+        'Gandalf reaches Hobbiton, explains history of the Ring',
+        ], year=1418)
+    draw_month('May', [
+        'Gandalf and Aragorn confer at Sarn Ford',
+        ])
+    draw_month('June', [
+        '',
+        '',
+        '',
+        'Sauron attacks Osgiliath, Gollum escapes Wood-elves',
+        "Gandalf seeks news from outside the Shire",
+        'Gandalf meets Radagast, writes letter to Frodo',
+        ])
+    draw_month('July', [
+        'Gandalf leaves Bree, Boromir leaves Minas Tirith',
+        'Saruman imprisons Gandalf in Orthanc',
+        ])
+    draw_month('August')
+    draw_month('September', [
+        '',
+        '',
+        '',
+        'Nazgul enter the Shire, <b>Frodo leaves Bag End</b>',
+        'Passage of the Old Forest, arrival in Bree',
+        ])
+    draw_month('October', [
+        'Flight from Bree, attack upon Weathertop',
+        'Crossing of Hoarwell, passage through the Trollfells',
+        'Battle of the Ford, <b>arrival at Rivendell</b>',
+        'Frodo wakes, <b>Council of Elrond</b>',
+        '',
+        ])
+    draw_month('November')
+    draw_month('December', [
+        '',
+        '',
+        '',
+        '',
+        '<b>Departure from Rivendell</b>, first week in wild',
+        ])
+    '<tr><th colspan=7>&nbsp;'
+    draw_month('January', [
+        'Second week in wild',
+        'Arrival in Hollin, attempt at Redhorn Pass, flight into Moria',
+        'Escape from Moria, <b>arrival in forest of Lorien</b>',
+        'Gandalf dies',
+        '',
+        ], year=1419)
+    draw_month('February', [
+        '',
+        '',
+        'Mirror of Galadriel, Gandalf returns',
+        'Voyage down Anduin to Parth Galen',
+        '<b>Breaking of the Fellowship</b>, Merry and Pippin meet Ents',
+        ])
+    draw_month('March', [
+        'Gollum guides Frodo, Gandalf heals Theoden, Ents reach Isengard',
+        'Saruman defeated, Frodo meets Faramir, Gandalf reaches Minas Tirith',
+        'Battle of Pelennor Field, Frodo crosses Cirith Ungol',
+        'Aragorn marches towards Mordor, Frodo approaches Orodruin',
+        'Frodo reaches Mount Doom. <b>Downfall of Sauron</b>',
+        ])
+    draw_month('April', [
+        'Celeborn and Thranduil reconquer Mirkwood',
+        'Ring-bearers honored on field of Cormallen',
+        ])
+    draw_month('May', [
+        '<b>Crowing of King Elessar;</b> Elrond and Arwen leave Rivendell',
+        'Eomer and Eowyn return to Edoras with the Sons of Elrond',
+        '',
+        'Elrond and Arwen reach Lorien',
+        'Arwen and her escort leave Lorien',
+        ])
+    draw_month('June', [
+        '',
+        '',
+        'Arwen and her escort reach Edoras, depart for Minas Tirith',
+        '',
+        'Arwen and her escort reach Minas Tirith',
+        '<b>Wedding of Aragorn and Arwen upon Midsummer</b>',
+        ])
+    draw_month('July', [
+        '',
+        '',
+        'King Theoden\'s funeral escort leaves Minas Tirith',
+        ])
+    draw_month('August', [
+        '',
+        'King Theoden buried at Edoras',
+        'The Company reaches Helm\'s Deep and then Isengard',
+        'King Elessar says farewell at Isengard, turns toward home',
+        'Ride north through Dunland, meeting with Saruman',
+        ])
+    draw_month('September', [
+        '',
+        'They reach and linger in Eregion',
+        'Celeborn and Galadriel depart for Lorien',
+        'Arrival at Rivendell, Bilbo celebrates 129th birthday',
+        '',
+        ])
+    draw_month('October', [
+        'Gandalf and Hobbits leave Rivendell',
+        '',
+        '',
+        'Gandalf and Hobbits reach Bree',
+        'Hobbits leave Bree and reach Brandywine Bridge',
+        ])
+    draw_month('November', [
+        '<b>Battle of Bywater,</b> death of Saruman',
+        ])
+    '</table>'
+
+def compose [plain] (*pieces):
+    if pieces:
+        title = '%s of S.R. %s' % (pieces[1], pieces[0])
+    else:
+        title = 'Archive of the Shire-Reckoning'
+    sr_html.start(title=title, style="""
+ table.calendar {
+  border-collapse: collapse;
+  border-style: none;
+  border-width: 0;
+  white-space: nowrap;
+ }
+
+ table.calendar td {
+  width: 1.5em;
+  height: 1.5em;
+ }
+
+ td.d {
+  border-style: solid;
+  border-width: 1px;
+  border-color: black;
+  text-align: right;
+  font-size: 8pt;
+  font-weight: bold;
+  vertical-align: top;
+  background-color: red;
+ }
+
+ td.a {
+  padding-left: 0.5em;
+ }
+
+ .calendar :link, .calendar :visited { color: black; }
+
+ td.lit { background-color: #ffff60; }
+ td.mid { background-color: #ffff60; }
+ td.ove { background-color: #ffff60; }
+ td.jul { background-color: #40ff40; }
+ td.aug { background-color: #80ff80; }
+ td.sep { background-color: #ffc040; }
+ td.oct { background-color: #ff8000; }
+ td.nov { background-color: #ffc040; }
+ td.dec { background-color: #c0ffff; }
+ td.yul { background-color: #ffffff; }
+ td.jan { background-color: #00ffff; }
+ td.feb { background-color: #c0ffff; }
+ td.mar { background-color: #c0ff40; }
+ td.apr { background-color: #80ff00; }
+ td.may { background-color: #c0ff40; }
+ td.jun { background-color: #80ff80; }
+
+ p.eighty { margin-left: 10%; margin-right: 10%; }
+ p.warning { background-color: #ff6060; }
+""")
+
+    if pieces:
+        year_name, month_name = pieces
+        month_page(int(year_name), month_name)
+    else:
+        main_page()

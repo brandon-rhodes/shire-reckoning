@@ -1,0 +1,9 @@
+#!/usr/bin/env python
+
+# Print to standard output the list of indexes that should be
+# generated when the user runs "make".
+
+from datetime import *
+
+for i in range(0,180):
+    print (datetime.today() + timedelta(i)).strftime('%Y-%m-%d')

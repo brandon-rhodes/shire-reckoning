@@ -1,0 +1,75 @@
+# Page design routines, which generate various headers and features in
+# a stylistically attractive and uniform manner.
+
+import re
+import shire_calendar as sc
+
+# Small design elements.
+
+def date_range [plain] (d0, d1):
+    #'%s %r -- %s %r' % (d0.day.name, d0.year, d1.day.name, d1.year)
+    if d0.year != d1.year:
+        '%s -- %s %s' % (d0.day.name, d1.day.name, d1.year)
+    elif d0.month != d1.month:
+        '%s -- %s' % (d0.day.name, d1.day.name)
+    else:
+        '%d--%s' % (d0.day.number, d1.day.name)
+
+def text_date_range [plain] (d0, d1):
+    date_range(d0, d1).replace('--', '-')
+
+# Standard document sections.
+
+def head [plain] (title):
+    '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n'
+    '<html><head>'
+    '<title>%s</title>' % title
+    '<style type="text/css">'
+    ' p { margin-left: 0em; margin-right: 0em; text-indent: 1.5em; '
+    '     margin-bottom: 0em ; margin-top: 0em; font-style: normal }'
+    ' p.noindent { text-indent: 0em } '
+    ' p.hanging { margin-left: 1.5em; text-indent: -1.5em }'
+    ' p.slight { margin-top: 0.5ex }'
+    ' q { color: #743500 }'
+    ' q:before { content: "" }'
+    ' q:after { content: "" }'
+    ' blockquote { color: #743500 }'
+    ' li { margin-top: 1ex }'
+    '</style>'
+    '</head>'
+    '<body text=black link="#666646" vlink="#4c4c34" bgcolor="#e8e8a0">'
+
+navigation_links = [('index', 'Main'),
+                    ('archive', 'Archive'),
+                    ('calendar', 'Calendar'),
+                    ('faq', 'FAQ')]
+#                    ('moons', 'Moons')]
+
+def navigation [plain] (this=None, *args):
+    if this != 'index': '<b>The Shire-Reckoning:</b>'
+    for urlname, visiblename in navigation_links:
+        if urlname != this:
+            '<a href="%s.html">%s</A>\n' % (urlname, visiblename)
+    '<br>'
+
+def foot [plain] ():
+    '</body></html>'
+
+def phase [plain] (shireday):
+    '<img src="moon-%d.gif">' % sc.phase(shireday)
+
+# plain_words = open('data/accents.txt').read().split()
+# plain_REs = map(re.compile, plain_words)
+# accented_words = open('data/accents.html').read().split()
+# word_transforms = zip(plain_REs, accented_words)
+
+transforms = [ (re.compile(r), s) for (r,s)
+               in eval(open('data/transforms.py').read()) ]
+
+def transform [plain] (content):
+    parts = re.split(r'(<.*?>)', content)
+    for i in range(0, len(parts), 2):
+        if not parts[i]: continue
+        for cre, replacement in transforms:
+            parts[i] = cre.sub(replacement, parts[i])
+    ''.join(parts)

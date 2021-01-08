@@ -1,0 +1,11 @@
+#!/usr/bin/env python
+
+import sr_moon
+
+print '%12s %12s %12s %12s' % ('old phase', 'new phase',
+                               'difference', 'in days')
+
+for i in range(16):
+    ph = i/16.
+    pha = sr_moon.adjust(ph)
+    print '%12.7f %12.7f %12.7f %12.7f' % (ph, pha, ph-pha, (ph-pha) * 29.53)

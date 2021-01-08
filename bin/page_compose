@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+
+import quixote
+quixote.enable_ptl()
+
+import re, sys
+import design, pages, sr_html
+
+# Given the name of a page module as our first argument, call the
+# function within it of the same name.  The text string returned by
+# this function will be placed into the file named as our second
+# argument, after having accents added to words and quotation marks
+# improved.
+
+if len(sys.argv) < 2:
+    sys.stderr.write("usage: page_rules <page name> <output file>\n")
+    sys.exit(2)
+
+page_name, output_filename = sys.argv[1], sys.argv[2]
+page_name = page_name.replace('/index', '')
+pieces = page_name.split('-')
+module_name = pieces[0]
+__import__('pages.' + module_name)
+module = getattr(pages, module_name)
+page = module.compose(*pieces[1:])
+page = design.transform(page)
+if module_name != 'atom':
+    page += sr_html.end()
+    page = re.compile(r'^ +', re.M).sub('', page)
+    page = re.compile(r'  +', re.M).sub(' ', page)
+file(output_filename, 'w').write(page)

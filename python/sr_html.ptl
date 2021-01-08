@@ -1,0 +1,89 @@
+#
+# -*- coding: utf-8 -*-
+
+import re, sys
+
+def start [plain] (title=None, style=None, end_with_banner=True):
+    '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"'
+    ' "http://www.w3.org/TR/html4/strict.dtd">'
+    '<html><head>'
+    '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">'
+    '<title>'
+    if title:
+        re.sub('<[^>]*>', '', title)
+    else:
+        'SR'
+    '</title>'
+    '<style type="text/css">'
+    r"""<!--
+ body {
+  font-family: Bitstream Vera Serif, serif;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 9pt;
+  padding-right: 9pt;
+  max-width: 40em;
+  font-size: 14pt;
+  line-height: 1.375;
+ }
+ h1 { margin-right: 1em; }
+ table { border-collapse: collapse; }
+ table.header { margin-left: 0px; margin-right: 0px; }
+ td.banner {
+  background-color: #600000;
+  background-image: url("/images/banner.png");
+  background-repeat: repeat-x;
+  background-position: top;
+ }
+ q { color: #680000; quotes: none }
+ dt { margin-top: 9pt; }
+ li { margin-top: 4pt; margin-bottom: 4pt; }
+ .gray { color: #a0a0a0; }
+ a:link { color: #606020; text-decoration: underline; }
+ a:visited { color: #303000; text-decoration: underline; }
+ .footnote { font-size: smaller; }
+"""
+    style or ''
+    '-->'
+    '</style>'
+    '</head><body>'
+    '<table class=header width=100% summary="page heading">'
+    '<tr><td width=100%>'
+    '<h1 align=center>'
+    title or ''
+    '</h1>\n'
+    '<td>'
+    for tag, name in (
+        ('index', 'Home Page'),
+        ('archive', 'Archive&nbsp;of&nbsp;Entries'),
+        ('calendar', 'Design&nbsp;of&nbsp;the&nbsp;Shire&nbsp;Calendar'),
+        ('faq', 'Questions&nbsp;and&nbsp;Answers&nbsp;(FAQ)'),
+	('moon', 'Phases&nbsp;of&nbsp;the&nbsp;Moon'),
+        ):
+        if not sys.argv[1].startswith(tag):
+            '<a href="/'
+            if tag == 'index':
+                '.'
+            else:
+                tag
+                '.html'
+            '">'
+            name
+            '</a>'
+        else:
+            '<span class=gray>'
+            name
+            '</span>'
+        '<br>'
+    if end_with_banner:
+        '<tr>'
+        '<td class="banner" colspan=2 height=40>'
+    '</table>'
+
+def end [plain] ():
+    '<center><font size=-1>'
+    '&copy;2007–2020 '
+    '<a href="https://rhodesmill.org/brandon/">Brandon Rhodes</a>'
+    '</font></center>'
+    '</body>'
+    '</html>'

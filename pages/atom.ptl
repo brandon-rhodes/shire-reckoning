@@ -1,0 +1,59 @@
+from datetime import datetime, timedelta
+from shire_calendar import calendar
+import sr, sr_entries, sr_html, sr_moon
+
+# As the main content of the page we display a series of dated entries
+# beginning with any for "today" and going backwards, digging back far
+# enough to find an entry that mentions every major character.
+
+def format_entries [plain] (modern_date, date):
+
+    entries = sr_entries.recent(date, 7)
+    groups = sr_entries.group_by_date(entries)
+    for group in groups:
+        entry = group[0]
+
+        '<entry>'
+        '<id>tag:shire-reckoning.com,2002:%s</id>' % entry.tag
+        '<title>%s, %s S.R.</title>' % (entry.date.name, entry.date.year)
+        '<content type="html">'
+
+        for i, entry in enumerate(reversed(group)):
+            if 'footnote' not in entry.types:
+                entry.render().replace('&', '&amp;').replace('<', '&lt;')
+
+        '</content>'
+        '<updated>'
+        adj_modern_date = modern_date - timedelta(entry.days_ago)
+        adj_modern_date.strftime("%Y-%m-%dT00:00:00Z")
+        '</updated>'
+        '</entry>'
+
+def compose [plain] (*pieces):
+    global modern_date
+
+    gy, gm, gd = [ int(p) for p in pieces ]
+    modern_date = datetime(gy, gm, gd)
+    #month, day = calendar.gregorian(gy, gm, gd)
+    month = modern_date.strftime('%B')
+    day = gd
+
+    '''<feed xmlns="http://www.w3.org/2005/Atom">
+ <id>tag:shire-reckoning.com,2002:index</id>
+ <title>The Shire-Reckoning</title>
+ <subtitle>Daily events from The Lord of the Rings</subtitle>
+ <author>
+  <name>webmaster@shire-reckoning.com</name>
+  <email>webmaster@shire-reckoning.com</email>
+ </author>
+ <link rel="self" href="http://shire-reckoning.com/atom.xml"/>
+ <link rel="alternate" href="http://shire-reckoning.com/"/>
+'''
+    '<updated>'
+    modern_date.strftime("%Y-%m-%dT00:00:00Z")
+    '</updated>'
+
+    format_entries(modern_date, calendar[1418, month, day])
+    format_entries(modern_date, calendar[1419, month, day])
+
+    '</feed>'

@@ -1,0 +1,27 @@
+# If Tolkien mistakenly thought that date given by an almanac for the
+# "new moon" was the date on which the new crescent actually appeared,
+# he could actually have intended the following as the phases of the
+# moon in early S.R. 1419:
+#
+# January 8 - Full
+# February 22 - New
+# March 8 - Full
+# March 21 - New
+#
+# New and full moons spaced exactly this many days apart do occur
+# several times a century.  Here are the dates from 1800 through the
+# publication of The Lord of the Rings on which one can place the
+# first day of the Shire Year (2 Yule) and get, as a result, the same
+# four moon phases as shown above:
+
+1822/5/27
+1839/4/20
+1867/7/8
+1875/6/10
+1892/5/3
+1909/3/28
+1926/2/19
+1934/1/22
+1937/6/15
+1941/12/25
+1954/5/9

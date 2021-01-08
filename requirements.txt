@@ -1,0 +1,2 @@
+pyephem
+quixote==2.8b2

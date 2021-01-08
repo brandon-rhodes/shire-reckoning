@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+
+# Print to standard output the list of "year-month" strings for which
+# archive pages should be generated.
+
+import sr_entries
+
+months = set()
+entries = sr_entries.all_entries
+for entry in entries:
+    date = entry.date
+    mn = ({ 'Lithe 1': 'June',
+            'Midyear': 'June',
+            'Lithe 2': 'July',
+            'Yule 1': 'December',
+            'Yule 2': 'January' }.get(date.name)
+          or date.month)
+    m = '%d-%s' % (date.year, mn)
+    months.add(m)
+for m in months:
+    print m

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Determine which day should be on our front page.
+
+TODAY=$(TZ=UTC date +%F)
+
+# Given an integral shireday as our only argument, update our main
+# page to display that day.
+
+sr=$HOME/Dropbox/shire-reckoning.com
+touch $sr/index-$TODAY.html # so browsers will reload it
+rm -f $sr/index.html
+ln -s index-$TODAY.html $sr/index.html
+rm -f $sr/atom.xml
+ln -s atom-$TODAY.xml $sr/atom.xml

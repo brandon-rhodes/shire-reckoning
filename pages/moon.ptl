@@ -1,0 +1,490 @@
+import re
+import sr_html, sr_moon
+import shire_calendar as sc
+from shire_calendar import calendar
+
+# Present on one web page all of the references to the phase of the
+# Moon from the Lord of the Rings.
+
+def compose [plain] (subpage=None):
+    if subpage == 'update':
+        moon_update()
+    else:
+        moon_main()
+
+def moon_main [plain] ():
+    sr_html.start('Moon Phases in <i>The Lord of the Rings</i>', style="""
+table.globes { font-family: Verdana, sans; font-size: 87.5%; }
+table.globes td { vertical-align: top; }
+table.globes ul { margin: 0; padding: 0 1em 0 1.8em; }
+table.globes li { margin: 0; padding: 0; }
+.sans { font-family: Verdana, sans; font-size: 87.5%; }
+table.almanac td { padding-top: 0; padding-bottom: 0; }
+table.almanac th { padding-left: 1em; padding-right: 1em; }
+.problem { background-color: #ffc0c0; }
+""")
+    """
+<p>
+<b>Update:</b> Tolkien <i>did</i> use a 1940s calendar!
+<a href="moon-update.html">Read more here.</a>
+</p>
+<h2>An Introduction to Lunar Phases</h2>
+<p>
+As you perhaps noticed on the home page or in the archives,
+this site displays the phase of the moon
+for each day of the adventure in <i>The Lord of the Rings</i>.
+Since some readers will be curious
+how this site computes the phase of the moon,
+and others may even wish to do their own calculations,
+this page attempts to collect everything known
+about lunar phases in Tolkien's text.
+<p>
+The text of <i>The Lord of the Rings</i> usually offers
+only a partial description of the Moon &mdash;
+such as telling us that the Moon is shining
+without mentioning from which direction,
+or giving the time at which it sets without describing its phase.
+So we are fortunate that the shape, position, and schedule of the Moon
+are closely related,
+allowing us to frequently deduce some of its properties from others.
+The basic relationships are sketched in the following diagrams
+for those who might be unfamiliar with them:
+</p>
+<table align=center class="globes" summary="phases of the moon"><tr>
+<th width=20%>Waxing<br>Crescent
+<th width=20%>Waxing<br>Gibbous
+<th width=20%>Full
+<th width=20%>Waning<br>Gibbous
+<th width=20%>Waning<br>Crescent
+<tr>
+<td align=center>
+<img width=140 height=90 src="images/skyglobe1.png" alt="waxing crescent moon">
+<td align=center>
+<img width=140 height=90 src="images/skyglobe2.png" alt="waxing gibbous moon">
+<td align=center>
+<img width=140 height=90 src="images/skyglobeF.png" alt="full moon">
+<td align=center>
+<img width=140 height=90 src="images/skyglobe3.png" alt="waning gibbous moon">
+<td align=center>
+<img width=140 height=90 src="images/skyglobe4.png" alt="waning crescent moon">
+<tr>
+<td><ul><li>Already in the western sky at sunset.
+<li>Sets before midnight.
+</ul>
+<td><ul><li>Still in the eastern sky at sunset.
+<li>Passes overhead before midnight.
+<li>Sets before dawn.
+</ul>
+<td><ul><li>Rises at sunset
+<li>Overhead at midnight
+<li>Sets at dawn
+</ul>
+<td><ul><li>Rises before midnight.
+<li>Passes overhead after midnight.
+<li>In the western sky at dawn.
+</ul>
+<td><ul><li>Rises after midnight.
+<li>Still in the eastern sky at dawn.
+</ul>
+</table>
+<p>
+In case you find the terminology unfamiliar,
+the Moon is said to be <b>waxing</b> as it grows toward full,
+<b>waning</b> as it shrinks again afterwards,
+to be <b>crescent</b> when less than half full,
+and to be <b>gibbous</b> when more than half.
+</p>
+
+<h2>The Problem New Moon of February, S.R.&nbsp;1419</h2>
+
+<p>
+There are many nights during the adventure,
+and indeed entire weeks and months,
+for which <i>The Lord of the Rings</i> gives no description of the moon.
+To display its phases, therefore,
+requires a general schedule or formula
+that gives the phase whether the text mentions the moon that night or not.
+Since the new and full moons in the narrative
+are separated by different lengths of time,
+much like the slightly irregular schedule of the real Moon,
+we cannot merely estimate the moon's phase
+using the average length of the lunar month
+and have the results match the text.
+It would therefore be helpful
+to find a modern schedule of new and full moons
+matching those in <i>The Lord of the Rings</i>
+upon which we could base our predictions.
+<p>
+Unfortunately,
+any attempt to correlate modern Moon phases
+with those in <i>The Lord of the Rings</i>
+fails because of the impossibly long interval
+between the New Moon of February, S.R.&nbsp;1419
+and the full moon that follows on March&nbsp;8th.
+As the Company travel down the Anduin after leaving Lorien,
+we are told on February&nbsp;22nd that:
+</p>
+<blockquote>
+<q>At Aragorn's bidding they paddled now for long
+spells, and the banks went swiftly by. But they saw little
+of the country, for they journeyed mostly by night and
+twilight, resting by day, and lying as hidden as the land
+allowed. In this way the time passed without event until
+the seventh day.
+<br><br>
+The weather was still grey and overcast, with wind from
+the East, but as evening drew into night the sky away
+westward cleared, and pools of faint light, yellow and
+pale green, opened under the grey shores of cloud. There
+the white rind of the new Moon could be seen glimmering in
+the remote lakes. Sam looked at it and puckered his brows.&nbsp;</q>(II.9)
+</blockquote>
+<p>
+We can empathize with Sam and his puckered brows!
+But while Sam himself is confused because he lost track of time
+amidst the immortal beauty of Lorien,
+we are confused because this crescent moon simply should not be visible yet.
+<p>
+Each month,
+the crescent moon first becomes visible
+one or two days after the moment at which the moon is <i>new</i> &mdash;
+the instant at which it is most completely dark
+and at the opposite end of its journey from <i>full</i>.
+But this means that the actual moment of new moon
+must have arrived more than a dozen hours
+before Sam saw its crescent above the lakes,
+putting the new moon far too early
+when compared with the subsequent full moon:
+</p>
+<p align=center>
+<img src="images/problems.png" width=631 height=124
+ alt="dates of phases of the moon"><br>
+<span class="sans">Phases of the moon
+for the beginning of S.R.&nbsp;1419.</span>
+<p>
+Even after making every possible concession,
+the schedule of moons presented in <i>The Lord of the Rings</i>
+remains impossible for the modern moon:
+<ul>
+<li>
+<b>Could the date of the above passage
+be later than February&nbsp;22nd, S.R.&nbsp;1419?</b><br>
+The <i>Tale of Years</i> records
+that the Company departed from Lorien on the&nbsp;16th,
+making that the first day of their voyage;
+the &ldquo;<q>seventh day</q>&rdquo; on the Anduin
+must therefore be the&nbsp;22nd;
+and this agrees precisely with the fact
+that the attack on the boats above Sarn Gebir,
+which the <i>Tale</i> places on the&nbsp;23rd,
+is described in the text as being
+on the &ldquo;<q>eighth night</q>&rdquo; of the voyage.
+Even were we to ignore the <i>Tale of Years</i>,
+the narrative of <i>The Lord of the Rings</i> is continuous from this point
+to the full moon of March&nbsp;8th,
+so we can verify the time elapsed without reference to dates at all.
+<li>
+<b>Could the next full moon have fallen earlier than March&nbsp;8th?</b><br>
+Although Frodo and Sam
+see the &ldquo;<q>full moon</q>&rdquo; from Henneth Annun
+before dawn on the&nbsp;8th,
+we might be tempted to place the actual moment of full moon
+on the evening of the&nbsp;7th,
+and hope that the moon would still have looked full to Frodo and Sam
+several hours later;
+but unfortunately we are told explicitly
+that Pippin sees the moon as merely &ldquo;<q>almost at the full</q>&rdquo;
+after sunset on the&nbsp;7th.
+<li>
+<b>Could the time between this new and full moon
+have been less than sixteen full days?</b><br>
+The estimate of only sixteen days is drastically generous,
+and assumes
+not only that the full moon fell
+only two hours after midnight on March&nbsp;8th,
+but that when Sam on February&nbsp;22nd saw the crescent moon
+right after sunset &mdash; at around six in the evening &mdash;
+he achieved a stunning naked-eye observation of a moon only sixteen hours old.
+</ul>
+<p>
+Since in modern times the period between new and full moon
+never exceeds 15&nbsp;days, 15&nbsp;hours,
+any modern schedule will still fall more than nine hours short
+of the sixteen-day interval required by the text.
+At least three wild theories can be contrived
+to try explaining away the impossibility,
+but all of them fall short:
+</p>
+<ul>
+<li>
+<b>Was the full moon viewed from a different enough longitude
+than the new moon to account for this long interval?</b><br>
+This line of inquiry appears promising for a moment:
+Henneth Annun lies to the east of the river Anduin;
+so Frodo and Sam experienced earlier sunrises and sunsets there
+than while voyaging on the river;
+so we could place the full moon they observed
+nearer the new moon of February.
+But a glance at the distances involved
+suggests that the difference was probably less than twenty minutes.
+And then we remember that it is from Rohan &mdash;
+farther <i>west</i> of the River than Frodo and Sam are to its east &mdash;
+that Pippin, in the early evening, sees the moon as not yet full;
+so bringing longitude into our reckoning
+will actually require us to move the full moon <i>later</i>,
+so it still has enough time to become full after Pippin sees it.
+<li>
+<b>But the text doesn’t say that Sam saw the moon in the sky!
+It only says he saw the Moon “glimmering in the remote lakes”
+which could have been magic lakes like the Mirrormere,
+making visible what the eye could not normally see.
+</b><br>
+This clever maneuver requires us to read the text
+as meaning that the Moon was <i>only</i> visible in the lakes,
+but not also in the sky above them.
+Besides being a forced and contrived reading of the passage,
+this explanation would seem to founder on two rocks.
+First, magic lakes in which the New Moon was visible a day early
+should certainly have elicited more comment than is made in the text.
+Second, Sam states late the next evening
+that &ldquo;<q>we'd been a week on the way last night, when
+up pops a New Moon as thin as a nail-paring</q>&rdquo;,
+clearly using the verb &ldquo;<q>up pops</q>&rdquo;
+to describe a Moon seen above the horizon.
+<li>
+<b>Could the Third Age have been such a geologically ancient era
+that the lunar month was longer?</b><br>
+We can receive no help from geologic history,
+for the scientists tell us that in fact the Moon was closer &mdash;
+and thus produced shorter, not longer, periods between its phases &mdash;
+when the Earth was much younger.
+And explanations of this sort are discouraged
+by Tolkien himself in the Appendix on the &ldquo;Shire Calendar&rdquo;
+where he states that in the Third Age,
+&ldquo;<q>The year no doubt was of the same length,
+for long ago as those times are now reckoned in years and lives of men,
+they were not very remote according to the memory of the Earth.</q>&rdquo;
+</ul>
+<p>
+The only remaining option is simply to accept,
+without the possibility of an internal explanation,
+that this particular New Moon of the Third Age
+fell at least one day early,
+and determine how to include this aberration
+in a general framework for computing moon phases.
+</p>
+
+<h2>Causes and Consequences</h2>
+
+<p>
+The impossible moon phases of S.R.&nbsp;1419 are explained very simply
+if Tolkien was copying his moon phases out of an almanac for a real year,
+and mistakenly thought
+that almanacs use the phrase &ldquo;new moon&rdquo;
+in its colloquial English sense,
+meaning the date on which the new crescent moon appears.
+But almanacs in fact use &ldquo;new moon&rdquo; in its astronomical sense,
+to mean the moment when the moon is most dark.
+Through this mistake,
+Tolkien would have put a crescent moon in his narrative
+everywhere he really wanted the dark of the moon,
+and would thus have forced the actual new moons in Middle-earth
+to each be one or two days too early.
+<p>
+If one examines the <a href="files/phase-dates.txt">very few dates</a>
+which Tolkien could have counted as the first day of Shire year&nbsp;1419
+and gotten a pattern of full and <i>new</i> moons
+matching the full and <i>crescent</i> moons given in the narrative,
+one is immediately struck by the presence of Christmas&nbsp;1941
+in the list of dates:
+<ul>
+<li>
+We know from his <i>Letters</i>
+that Tolkien was rewriting <i>The Lord of the Rings</i>
+to correct its moon phases in early&nbsp;1944,
+when an almanac or calendar from 1942 would not only have been easy to find,
+but could plausibly have still been lying about his desk.
+<li>
+Tolkien had already displayed a fondness for Christian feasts
+by having the Company leave Rivendell on December&nbsp;25th
+(Christmas in our calendar)
+and bringing the Ring to its end on March&nbsp;25th
+(the traditional date of the first Easter);
+to have counted a modern Christmas as the beginning of a Shire year
+would have been quite characteristic.
+<li>
+It is much harder to know whether this is relevant,
+but let us note in passing that &ldquo;1941&rdquo;
+and &ldquo;1419&rdquo; are anagrams.
+</ul>
+<p>
+For reference,
+the following table demonstrates how counting Christmas&nbsp;1941
+as the first day of Shire year&nbsp;1419
+would have given Tolkien precisely the moons required:
+<table align=center class=almanac
+ summary="moon phase correspondence between AD 1942 and S.R. 1419">
+<tr><th colspan=2>1942 Almanac<th>Date in S.R. 1419
+ <th>Tolkien describes this moon:
+<tr><td align=center colspan=4><hr>
+<tr><td align=right>January 2nd<td>&mdash; Full
+ <td align=center>January 8th
+ <td align=center>As &ldquo;<q>full</q>&rdquo;
+<tr><td align=right>January 16th<td>&mdash; New
+ <td align=center>January 22nd
+ <td align=center>(not described)
+<tr><td align=right>February 1st<td>&mdash; Full
+ <td align=center>February 8th
+ <td align=center>(not described)
+<tr><td align=right>February 15th<td>&mdash; New
+ <td align=center>February 22nd
+ <td align=center>As the &ldquo;<q>white rind</q>&rdquo; Sam sees
+<tr><td align=right>March 3rd<td>&mdash; Full
+ <td align=center>March 8th
+ <td align=center>As &ldquo;<q>full</q>&rdquo;
+<tr><td align=right>March 16th<td>&mdash; New
+ <td align=center>March 21st
+ <td align=center>As a new crescent*
+<tr><td align=center colspan=4><hr>*Since on the 24th
+ they see a &ldquo;<q>waxing moon</q> ... <q>four nights old</q>&rdquo;
+</table>
+
+<p>
+To display the phase of the moon for this web site,
+the real moon phases of 1942 are combined with a correction
+that moves the moment of each new moon about a day and a half earlier.
+The effect of this correction upon the waxing and waning half-moons
+must be different:
+the waxing half-moon must remain in place
+so that the moon is still crescent
+when Frodo sees it on February&nbsp;29th,
+but the waning half-moon must happen early
+for a crescent moon to be seen by Frodo on January&nbsp;16th.
+The corrected phase we use is therefore:
+<p align=center><img src="images/phaseeqn.png"
+ alt="moon phase adjustment equation">
+
+<h2>Lunar References in the Text</h2>
+<p>
+Here are all of the references
+to the actual appearance of the Moon in <i>The Lord of the Rings</i>
+(a list which ignores things like references to the Moon in poetry and song).
+References which create problems
+when trying to work out a realistic schedule of moon phases
+are highlighted and marked as &ldquo;problematic&rdquo;.
+"""
+
+    stuff = open('data/moons').read()
+
+    '<dl>'
+    for piece in stuff.split('Date: '):
+        piece = piece.strip()
+        if not piece:
+            continue
+        dateline, text = piece.split('\n', 1)
+        if dateline[-1] == '*':
+            problem = True
+            dateline = dateline[:-1]
+        else:
+            problem = False
+        date = calendar[dateline.split()]
+
+        '<dt'
+        if problem:
+            ' class=problem'
+        '>'
+        p = sr_moon.phase(date, 0.5)
+        sr_moon.img(p)
+        '&nbsp;<b>'
+        date.year
+        ' '
+        date.name
+        '</b>'
+        if problem:
+            ' &mdash; <b>problematic</b>'
+        '<dd'
+        if problem:
+            ' class=problem'
+        '>'
+        text
+    '</dl>'
+
+def moon_update [plain] ():
+    sr_html.start('Update: LOTR Moon phase theory vindicated', style="""
+table.globes { font-family: Verdana, sans; font-size: 87.5%; }
+table.globes td { vertical-align: top; }
+table.globes ul { margin: 0; padding: 0 1em 0 1.8em; }
+table.globes li { margin: 0; padding: 0; }
+.sans { font-family: Verdana, sans; font-size: 87.5%; }
+table.almanac td { padding-top: 0; padding-bottom: 0; }
+table.almanac th { padding-left: 1em; padding-right: 1em; }
+.problem { background-color: #ffc0c0; }
+""")
+    """
+<h2>Update: the source of Tolkien’s Moon phases</h2>
+Tolkien <i>did</i> use a 1940s calendar!
+<p>
+As I was first writing this calendar site in 2006,
+I wanted to display the Moon’s phase
+for each day in <i>The Lord of the Rings</i>.
+But the schedule of phases in the story wasn’t uniform.
+The number of days between New Moon and Full Moon
+seemed to vary in Middle-earth,
+just as in the real world.
+How could I correctly display the New Moons and Full Moons
+that didn’t get mentioned in the text,
+when their schedule varies from month to month?
+<p>
+I wrote a Python script to search the past two centuries
+for a sequence of lunar phases
+that would match the Moons that do get described in the story.
+If I could find a match,
+I could use the rest of the Moon phases that year
+to provide plausible dates for all the Moon’s phases
+during the War of the Ring.
+The Python script <a href="files/phase-dates.txt">succeeded!</a>
+I was startled to find a perfect match
+with the Moon phases starting Christmas Day, 1941 —
+the depths of the same war-torn winter during which Tolkien was writing.
+<p>
+Without any evidence except this intriguing match,
+I used this site to make public my guess
+that Tolkien wrote with a recent calendar at his elbow,
+using the 1941–1942 Moon phases as a realistic source
+for the phases in Middle-earth.
+<p>
+If only I had known: the fact had already been public for 17 years!
+<p>
+Back in 1989,
+Christopher Tolkien released <i>The Treason of Isengard</i>,
+the second volume in his epic series <i>The History of Middle-earth</i>
+that chronicles the long decades
+over which his father wrote <i>The Lord of the Rings</i>.
+And right there, on page 369 of the chapter “The Great River”, it states:
+</p>
+<img width=100% src="images/phases-excerpt-1024.jpg" alt="Quotation from the book The Treason of Isengard">
+<blockquote>
+<q>Either while the making of Time-scheme I was in progress
+or at some later point my father wrote at the head of the first page of it:
+<i>Moons are after 1941–2 + 6 days</i>.
+He changed this to <i>+ 5 days</i>,
+and added: <i>thus Full Moon Jan. 2 is Jan. 7</i>.</q>
+</blockquote>
+<p>
+So thanks to the late Christopher Tolkien’s decades of careful scholarship
+on his father’s early drafts,
+we know that the telling coincidence of 1942 Moon phases
+and Moon phases in Middle-earth is,
+in fact, evidence of deliberate design.
+<p>
+I am not aware, however, that Christopher Tolkien ever addressed
+the second of the claims that I made on this site:
+that Tolkien misunderstood what “New Moon” means on a calendar,
+and therefore put slender crescents everywhere in the story
+when the Moon really ought to have instead been invisible.
+The Moon Phases page might still therefore be of interest
+to anyone trying to work out Moon phases in <i>The Lord of the Rings</i>.
+<p>
+<a href="moon.html">Return to the page on Moon Phases</a>
+</p>
+"""

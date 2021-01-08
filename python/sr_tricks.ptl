@@ -1,0 +1,4 @@
+# Small functions we always want available.
+
+def nbsp [plain] (s):
+    s.replace(' ', '&nbsp;')
