@@ -1,4 +1,6 @@
+import os
 from datetime import datetime
+
 from shire_calendar import calendar
 import sr, sr_entries, sr_html, sr_moon
 from sr_tricks import *
@@ -98,96 +100,8 @@ def format_entries [plain] (today, width):
     for entry_group in sr_entries.group_by_date(entries):
         format(entry_group, today)
 
-def compose [plain] (*pieces):
-    gy, gm, gd = [ int(p) for p in pieces ]
-    modern_day = datetime(gy, gm, gd)
-    #month, day = calendar.gregorian(gy, gm, gd)
-    month = modern_day.strftime('%B')
-    day = gd
-    date1418 = calendar[1418, month, day]
-    date1419 = calendar[1419, month, day]
+def compose [plain] ():
+    sr_html.start(title='The Shire-Reckoning')
 
-    #y = None
-    #before_events = []
-    #quest_events = []
-    #after_events = []
-    #for event in sr_events.of_day(day):
-    #    entry = (event.year, event.days[0], event)
-    #    year = int(event.year)
-    #    if year < 3018 or year == 3018 and day.doy < 267: # < 23 September 3018
-    #        before_events.append(event)
-    #    elif year > 3019 or year == 3019 and day.doy > 85: # > 25 March 3019
-    #        after_events.append(event)
-    #    else:
-    #        quest_events.append(event)
-
-    sr_html.start(title='The Shire-Reckoning', end_with_banner=False,
-                  style='''table.header { margin: 0px; }
- table.main { border-collapse: separate;
-  border-spacing: 1px; background-color: #ffffb0; }
- td.banner { border: 0px solid #600000; }
- table td.roll { text-align: left; }
- td.bord { padding: 9pt; vertical-align: top; text-align: center;
-  background-color: white;
-  border-top: 4px solid #600000; border-bottom: 4px solid #600000; }
- .foo { clear: left; }
- td.lbord { border-left: 4px solid #600000; }
- td.rbord { border-right: 4px solid #600000; }
- table.date { float: left; margin: 0pt 9pt 3pt 0pt; }
- .date { color: #ffffff; background-color: #808058; border: black 1px;
-  font-family: Verdana, sans; text-align: center; }
- .detail { font-size: 80.0%; }
- .datespan td { color: #ffffff; background-color: #808058;
-  font-family: Verdana, sans; text-align: center; padding: 1ex;
-  border-top: 3px solid #600000;
-  border-bottom: 3px solid #600000;
- }
- .moon { color: #ffffff; background-color: #000000; border: black 1px;
-  vertical-align: middle; font-family: Verdana, sans; font-size: 80.0%; }
- .hrule { height: 1px; background-color: #901020; }
-''')
-
-    '<table class=main summary="three columns of home page"><tr>'
-    '<td class="banner" colspan=3 height=35>'
-    '<tr>'
-
-    def todays_date [plain] ():
-        td(30)
-        '<a href="atom.xml">'
-        '<img src="images/atom.png" alt="feed logo" border=0><b>Atom Feed</b>'
-        '</a>'
-        '<br>'
-        'Receive updates automatically from the Shire-Reckoning!'
-        '<p>'
-        'For modern date<br>%s' % modern_day.strftime('%Y %B %d')
-        '<p>'
-        'Today in the Shire is:<br>%s %s' % (month, day)
-
-    # Through the first quarter of the year, we follow the Ring from
-    # Eriador to its destruction.
-
-    if date1418 < calendar['1418 April 12']:
-
-        todays_date()
-        format_entries(date1419, 50)
-        td()
-
-    # From April 12th (the 1418 return of Gandalf to the Shire) to one
-    # week after the Battle of Bywater in 1419 (so that it does not
-    # disappear from the front page too quickly), we present two
-    # columns tracking the events of both years in parallel.
-
-    elif date1419 < calendar['1419 November 11']:
-        format_entries(date1418, 35)
-        todays_date()
-        format_entries(date1419, 35)
-
-    # But once we are in mid-November, we revert to telling only the
-    # story of the Hobbits in Rivendell as the weather gets colder.
-
-    else:
-        todays_date()
-        format_entries(date1418, 50)
-        td()
-
-    '</tr></table>'
+    with open(os.path.dirname(__file__) + '/index.html') as f:
+        f.read()
