@@ -8,18 +8,6 @@ export PYTHONPATH
 
 all:
 
-# For each file in the ./events/ directory, create and include a rule
-# that lists the dates for which the file provides entries.
-
-#EVENT_FILES := $(wildcard events/*)
-#EVENT_RULES := $(patsubst events/%, .make/%, $(EVENT_FILES))
-
-#.DELETE_ON_ERROR: $(EVENT_RULES)
-#$(EVENT_RULES): .make/%: events/% bin/event_rules python/sr_events.py
-#	bin/event_rules events/$* > $@
-
-#include $(EVENT_RULES)
-
 # For each page to be produced in the ./docs/ directory, create and
 # include a rule listing the dates for which the page will want to
 # display events.
